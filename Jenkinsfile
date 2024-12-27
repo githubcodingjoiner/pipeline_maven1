@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'sonarmaven'  // Name of the Maven installation in Jenkins
+    }
+
     environment {
-        SONARQUBE_SERVER = 'sonarqube'  // The name of the SonarQube server configured in Jenkins
+        SONARQUBE_SERVER = 'sonarqube'
     }
 
     stages {
@@ -15,12 +19,12 @@ pipeline {
         stage('Build and SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    bat """
-                        mvn clean verify sonar:sonar ^
-                        -Dsonar.projectKey=maven_pipeline ^
-                        -Dsonar.projectName=maven_pipeline ^
-                        -Dsonar.host.url=http://localhost:9000 ^
-                        -Dsonar.token=%SONAR_TOKEN%
+                    sh """
+                        mvn clean verify sonar:sonar \
+                        -Dsonar.projectKey=maven_pipeline \
+                        -Dsonar.projectName=maven_pipeline \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.token=$SONAR_TOKEN
                     """
                 }
             }
