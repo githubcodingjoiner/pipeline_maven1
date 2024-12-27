@@ -20,7 +20,7 @@ pipeline {
                         -Dsonar.projectKey=maven_pipeline \
                         -Dsonar.projectName=maven_pipeline \
                         -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.token=$SONAR_TOKEN
+                        -Dsonar.token=$ SONAR_TOKEN
                     """
                 }
             }
