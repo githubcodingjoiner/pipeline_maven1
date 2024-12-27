@@ -1,36 +1,21 @@
 pipeline {
     agent any
-    
+
     environment {
         SONARQUBE_SERVER = 'sonarqube'  // The name of the SonarQube server configured in Jenkins
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the source code from the repository
                 checkout scm
             }
         }
-        
-        stage('Build') {
+
+        stage('Build and SonarQube Analysis') {
             steps {
-                script {
-                    // Run the Maven build with SonarQube analysis
-                    sh 'mvn clean install sonar:sonar -Dsonar.projectKey=maven_pipeline -Dsonar.host.url=http://localhost:9000'
-                }
-            }
-        }
-        
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    sonarScanner(
-                        options: [
-                            "-Dsonar.projectKey=maven_pipeline",
-                            "-Dsonar.sources=."
-                        ]
-                    )
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=maven_pipeline -Dsonar.projectName='maven_pipeline' -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqp_cba3c202ee1b3e4da043fc6febc21727b939b8b9'
                 }
             }
         }
@@ -38,11 +23,10 @@ pipeline {
 
     post {
         success {
-            // Clean up or post actions (e.g., publish results)
-          echo "success"
+            echo "Build and analysis successful"
         }
-      failure{
-        echo "did not success"
-      }
+        failure {
+            echo "Build or analysis failed"
+        }
     }
 }
